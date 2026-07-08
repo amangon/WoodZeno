@@ -14,24 +14,14 @@ import {
 
 const socialLinks = [
   {
-    name: "Github",
-    href: "https://www.github.com/ritesh025",
-    Icon: Github,
-  },
-  {
     name: "Instagram",
-    href: "https://www.instagram.com/mr_raja_018",
+    href: "https://www.instagram.com/amanlala.___?igsh=MXAwcDVzeW5nbGIwcw==",
     Icon: Instagram,
   },
   {
-    name: "Twitter",
-    href: "https://twitter.com/mrraja018",
-    Icon: Twitter,
-  },
-  {
-    name: "LinkedIn",
-    href: "https://www.linkedin.com/in/riteshbafna25/",
-    Icon: Linkedin,
+    name: "Github",
+    href: "https://github.com/amangon",
+    Icon: Github,
   },
 ];
 

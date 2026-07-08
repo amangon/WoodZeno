@@ -1,9 +1,8 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { ShoppingBag, Star, StarHalf, Heart } from "lucide-react";
+import { ShoppingBag, Star, StarHalf, Heart, Plus, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 /* ---------------- COMPONENT ---------------- */
@@ -12,76 +11,11 @@ const Products = () => {
   const [wishlist, setWishlist] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [priceFilter, setPriceFilter] = useState("All");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  /* ---------------- DATA ---------------- */
-  const ProductsCollection = [
-    {
-      id: 1,
-      name: "Comfort Dining Chair",
-      category: "Chairs",
-      price: 1999,
-      originalPrice: 2499,
-      image: "/assets/chair2.jpg",
-      colors: ["#111", "#555", "#2563eb"],
-      rating: 4.5,
-      badge: "New",
-    },
-    {
-      id: 2,
-      name: "Premium Ortho Bed",
-      category: "Bed",
-      price: 4799,
-      originalPrice: 5499,
-      image: "/assets/bed.jpg",
-      colors: ["#f5f5f4", "#d1d5db"],
-      rating: 4,
-      badge: "Best Sale",
-    },
-    {
-      id: 3,
-      name: "Luxury Office Chair",
-      category: "Chairs",
-      price: 2599,
-      originalPrice: 3999,
-      image: "/assets/chair.jpg",
-      colors: ["#92400e", "#111", "#d1d5db"],
-      rating: 4.5,
-      badge: "Trending",
-    },
-    {
-      id: 4,
-      name: "Delightful Lamp",
-      category: "Lamp",
-      price: 1099,
-      originalPrice: 2099,
-      image: "/assets/lamp2.jpg",
-      colors: ["#111", "#d1d5db"],
-      rating: 5,
-      badge: "New",
-    },
-    {
-      id: 5,
-      name: "Classic Comfy Sofa",
-      category: "Sofa",
-      price: 5499,
-      originalPrice: 7999,
-      image: "/assets/sofa.jpg",
-      colors: ["#78350f", "#111", "#059669"],
-      rating: 4,
-      badge: "Limited",
-    },
-    {
-      id: 6,
-      name: "Office Desk",
-      category: "Desk",
-      price: 3199,
-      originalPrice: 3999,
-      image: "/assets/desk.jpg",
-      colors: ["#111", "#374151"],
-      rating: 4.5,
-      badge: "Best Sale",
-    },
-  ];
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cart, setCart] = useState([]);
 
   /* ---------------- EFFECTS ---------------- */
   useEffect(() => {
@@ -90,8 +24,61 @@ const Products = () => {
   }, []);
 
   useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(
+          "/api/products",
+          { cache: "no-store" }
+        );
+        const data = await res.json();
+        if (active) setProducts(Array.isArray(data) ? data : []);
+
+      } catch {
+        if (active) setProducts([]);
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+
+  useEffect(() => {
     localStorage.setItem("wishlist", JSON.stringify(wishlist));
   }, [wishlist]);
+
+  /* ---------------- CART HELPERS ---------------- */
+  const getCartQty = (id) => cart.find((x) => x.id === id)?.qty ?? 0;
+
+  const upsertCart = (id, qtyDelta) => {
+    setCart((prev) => {
+      const cur = prev.find((x) => x.id === id);
+      if (!cur) return [...prev, { id, qty: Math.max(1, qtyDelta) }];
+
+      const nextQty = cur.qty + qtyDelta;
+      if (nextQty <= 0) return prev.filter((x) => x.id !== id);
+
+      return prev.map((x) => (x.id === id ? { ...x, qty: nextQty } : x));
+    });
+  };
+
+  const cartLines = useMemo(() => {
+    return cart
+      .map((c) => {
+        const p = products.find((pp) => pp.id === c.id);
+        if (!p) return null;
+        return { ...p, qty: c.qty, lineTotal: (p.price ?? 0) * c.qty };
+      })
+      .filter(Boolean);
+  }, [cart, products]);
+
+  const cartSubtotal = useMemo(() => {
+    return cartLines.reduce((s, l) => s + (l?.lineTotal ?? 0), 0);
+  }, [cartLines]);
 
   /* ---------------- HELPERS ---------------- */
   const toggleWishlist = (id) => {
@@ -135,7 +122,7 @@ const Products = () => {
     Math.round(((original - price) / original) * 100);
 
   /* ---------------- FILTER LOGIC ---------------- */
-  const filteredProducts = ProductsCollection.filter((p) => {
+  const filteredProducts = products.filter((p) => {
     const categoryMatch =
       categoryFilter === "All" || p.category === categoryFilter;
 
@@ -147,10 +134,32 @@ const Products = () => {
     return categoryMatch && priceMatch;
   });
 
+
   /* ---------------- SCROLL HANDLER ---------------- */
-  const scrollToProducts = () => {
+  const [selectedId, setSelectedId] = useState(null);
+
+  const openCart = () => {
+    setCartOpen(true);
+    // focus pulse already handled in scrollToProducts
+  };
+
+  const addToCartAndOpen = (product) => {
+    if (!product) return;
+    upsertCart(product.id, 1);
+    scrollToProducts(product.id);
+    openCart();
+  };
+
+  const scrollToProducts = (id) => {
+    if (typeof id !== "undefined") setSelectedId(id);
+
     const section = document.getElementById("products");
-    section?.scrollIntoView({ behavior: "smooth" });
+    section?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (typeof id !== "undefined") {
+      // small pulse for “real feel”
+      setTimeout(() => setSelectedId((cur) => (cur === id ? null : cur)), 1600);
+    }
   };
 
   /* ---------------- UI ---------------- */
@@ -192,14 +201,25 @@ const Products = () => {
       </div>
 
       {/* GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-        {filteredProducts.map((product) => (
+      {loading ? (
+        <div className="text-center text-gray-600 py-16">Loading products...</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+          {filteredProducts.map((product) => (
           <div
             key={product.id}
-            className="bg-white rounded-xl border p-5 flex flex-col"
+            role="button"
+            tabIndex={0}
+            onClick={() => scrollToProducts(product.id)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") scrollToProducts(product.id);
+            }}
+            className={`bg-white rounded-xl border p-5 flex flex-col transition-all ${
+              selectedId === product.id ? "ring-2 ring-rose-500 scale-[1.01]" : ""
+            }`}
           >
             {/* IMAGE */}
-            <div className="relative h-80 rounded-lg overflow-hidden group">
+              <div className="relative h-80 rounded-lg overflow-hidden group">
               <Image
                 src={product.image}
                 alt={product.name}
@@ -216,8 +236,13 @@ const Products = () => {
               </Badge>
 
               <button
-                onClick={() => toggleWishlist(product.id)}
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  toggleWishlist(product.id);
+                }}
                 className="absolute top-3 right-3 p-2 bg-white rounded-full shadow"
+                aria-label="Wishlist"
+                title="Wishlist"
               >
                 <Heart
                   size={16}
@@ -261,7 +286,15 @@ const Products = () => {
                   </div>
                 </div>
 
-                <button className="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-gray-100">
+                <button
+                  className="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-gray-100"
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    addToCartAndOpen(product);
+                  }}
+                  aria-label="Add to cart"
+                  title="Add to cart"
+                >
                   <ShoppingBag size={18} />
                 </button>
               </div>
@@ -276,13 +309,116 @@ const Products = () => {
               </div>
             </div>
           </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
+      {/* CART DRAWER */}
+      {cartOpen && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/40"
+          onClick={() => setCartOpen(false)}
+        >
+          <div
+            className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl p-5"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Cart"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-extrabold">Your Cart</h3>
+                <p className="text-sm text-gray-500">
+                  {cartLines.length ? `${cartLines.length} items` : "Cart is empty"}
+                </p>
+              </div>
+              <button
+                className="px-3 py-1 rounded-md border hover:bg-gray-50 text-sm"
+                onClick={() => setCartOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3 overflow-auto max-h-[70vh] pr-1">
+              {cartLines.length === 0 ? (
+                <div className="text-sm text-gray-500">
+                  Add products to see order UI here.
+                </div>
+              ) : (
+                cartLines.map((l) => (
+                  <div
+                    key={l.id}
+                    className="flex items-center gap-3 rounded-xl border p-3"
+                  >
+                    <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-gray-50">
+                      <Image
+                        src={l.image}
+                        alt={l.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold truncate">{l.name}</div>
+                      <div className="text-xs text-gray-500">{l.category}</div>
+                      <div className="text-sm font-bold">₹ {l.lineTotal}</div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="w-9 h-9 rounded-full border flex items-center justify-center hover:bg-gray-50"
+                        onClick={() => upsertCart(l.id, -1)}
+                        aria-label="Decrease quantity"
+                      >
+                        <Minus size={16} />
+                      </button>
+                      <div className="w-8 text-center font-semibold">{l.qty}</div>
+                      <button
+                        className="w-9 h-9 rounded-full border flex items-center justify-center hover:bg-gray-50"
+                        onClick={() => upsertCart(l.id, 1)}
+                        aria-label="Increase quantity"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="mt-4 pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">Subtotal</div>
+                <div className="text-lg font-extrabold">₹ {cartSubtotal}</div>
+              </div>
+
+              <button
+                className="mt-4 w-full px-4 py-3 rounded-full bg-rose-500 text-white font-semibold hover:bg-rose-600 transition disabled:opacity-60"
+                disabled={cartLines.length === 0}
+                onClick={() => {
+                  // No checkout page exists currently; keep it realistic by scrolling to products.
+                  setCartOpen(false);
+                  const first = cartLines[0];
+                  scrollToProducts(first?.id);
+                }}
+              >
+                Proceed to Checkout
+              </button>
+
+              <div className="mt-2 text-xs text-gray-500">
+                Checkout flow not implemented yet. This drawer matches Amazon-like order feel.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* CTA */}
       <div className="flex justify-center mt-16">
         <button
-          onClick={scrollToProducts}
+          onClick={() => scrollToProducts()}
           className="px-8 py-3 rounded-full bg-rose-500 text-white
                      hover:bg-rose-700 hover:scale-105
                      hover:shadow-md hover:shadow-rose-500/60

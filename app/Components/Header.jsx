@@ -58,35 +58,41 @@ export default function Header() {
         </div>
         <PopoverGroup className="hidden lg:flex lg:gap-x-12">
           <Link
-            href="#"
+            href="/home"
             className="relative text-md font-semibold text-white hover:text-rose-500 hover:scale-110 transition-transform hover:-translate-y-0.5 hover:duration-400 group"
           >
             Home
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-rose-500 group-hover:w-full transition-all duration-500 ease-out"></span>
           </Link>
           <Link
-            href="#"
+            href="/about"
             className="relative text-md font-semibold text-white hover:text-rose-500 hover:scale-110 transition-transform hover:-translate-y-0.5 hover:duration-400 group"
           >
             About
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-rose-500 group-hover:w-full transition-all duration-500 ease-out"></span>
           </Link>
           <Link
-            href="#"
+            href="/products"
             className="relative group text-md font-semibold text-white hover:text-rose-500 hover:scale-110 transition-transform hover:-translate-y-0.5 hover:duration-400"
           >
             Products
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-rose-500 group-hover:w-full transition-all duration-500 ease-out"></span>
           </Link>
           <Link
-            href="#"
+            href="/contact"
             className="relative group text-md font-semibold text-white hover:text-rose-500 hover:scale-110 transition-transform hover:-translate-y-0.5 hover:duration-400"
           >
             Contact
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-rose-500 group-hover:w-full transition-all duration-500 ease-out"></span>
           </Link>
         </PopoverGroup>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-3">
+          <a
+            href="/cms"
+            className="px-4 py-2 rounded-sm text-white bg-rose-500 hover:bg-rose-600 transition font-semibold"
+          >
+            CMS
+          </a>
           <Button className="text-white bg-rose-500 group hover:bg-rose-600 group-hover:scale-105 transition duration-200 rounded-sm">
             <ShoppingCart size={30} />
             Order Now

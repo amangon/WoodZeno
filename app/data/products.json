@@ -1,0 +1,88 @@
+[
+  {
+    "id": 1,
+    "name": "Updated Product",
+    "category": "Chairs",
+    "price": 2500,
+    "originalPrice": 3200,
+    "image": "/assets/chair2.jpg",
+    "colors": [
+      "#111",
+      "#d1d5db"
+    ],
+    "rating": 4.7,
+    "badge": "Best Sale"
+  },
+  {
+    "id": 2,
+    "name": "Premium Ortho Bed",
+    "category": "Bed",
+    "price": 4799,
+    "originalPrice": 5499,
+    "image": "/assets/bed.jpg",
+    "colors": [
+      "#f5f5f4",
+      "#d1d5db"
+    ],
+    "rating": 4,
+    "badge": "Best Sale"
+  },
+  {
+    "id": 3,
+    "name": "Luxury Office Chair",
+    "category": "Chairs",
+    "price": 2599,
+    "originalPrice": 3999,
+    "image": "/assets/chair.jpg",
+    "colors": [
+      "#92400e",
+      "#111",
+      "#d1d5db"
+    ],
+    "rating": 4.5,
+    "badge": "Trending"
+  },
+  {
+    "id": 4,
+    "name": "Delightful Lamp",
+    "category": "Lamp",
+    "price": 1099,
+    "originalPrice": 2099,
+    "image": "/assets/lamp2.jpg",
+    "colors": [
+      "#111",
+      "#d1d5db"
+    ],
+    "rating": 5,
+    "badge": "New"
+  },
+  {
+    "id": 5,
+    "name": "Classic Comfy Sofa",
+    "category": "Sofa",
+    "price": 5499,
+    "originalPrice": 7999,
+    "image": "/assets/sofa.jpg",
+    "colors": [
+      "#78350f",
+      "#111",
+      "#059669"
+    ],
+    "rating": 4,
+    "badge": "Limited"
+  },
+  {
+    "id": 6,
+    "name": "Office Desk",
+    "category": "Desk",
+    "price": 3199,
+    "originalPrice": 3999,
+    "image": "/assets/desk.jpg",
+    "colors": [
+      "#111",
+      "#374151"
+    ],
+    "rating": 4.5,
+    "badge": "Best Sale"
+  }
+]
