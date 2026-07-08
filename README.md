@@ -1,13 +1,4 @@
 
-# 🪑 WoodZeno – Modern Furniture Website (Frontend)
-
-WoodZeno is a modern, responsive furniture and interior design website frontend built using Next.js and Tailwind CSS.
-The project focuses on clean UI, smooth animations, and a premium shopping experience for furniture and home décor products.
-
-
-
-🔗 ***Live Site: https://woodzeno.vercel.app/***
-
 --- 
 ## 🚀 Features
 
@@ -80,7 +71,3 @@ We welcome contributions! If you would like to improve, feel free to fork the re
 
 - 📊 Admin Dashboard
 ## 📱Deployment
-
-Deployed on Vercel. 
-
-### 🌐*Link : https://woodzeno.vercel.app/*
