@@ -1,2 +1,0 @@
-Cms.jsx file still contains remote delete URL (mywoods-api.onrender.com) not matching local API. Needs fix to use /api/products/:id DELETE and render fields according to local schema.
-
